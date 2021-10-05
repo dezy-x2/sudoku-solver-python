@@ -18,17 +18,24 @@ def getDimensions(puzzle):
 
 
 def makeGrid(puzzle):
+    # need to find the dimensions of the puzzle
     rows, cols = getDimensions(puzzle)
+    # each grid is an array with the key being its coordinates
     grid = {}
+    # iterate through the rows
     for g in range(0, rows, 3):
+        # this arr is used to keep arrs of a rows grids
         nums = []
+        # iterate through the columns
         for i in range(0, cols, 3):
+            # this arr holds one grid and is added to the nums arr
             temp = []
+            # these two loops go through each num in the grid
             for j in range(g, g + 3):
                 for k in range(i, i + 3):
                     temp.append(puzzle[j][k])
             nums.append(temp)
-
+        # this loop breaks down the nums arr into the grid
         for x in range(len(nums)):
             key = f"{g+x}"
             grid[key] = nums[x]
@@ -36,11 +43,15 @@ def makeGrid(puzzle):
 
 
 def findCoord(col, row, sudoku=puzzle):
+    # we need to know how many rows and columns there are
     rows, cols = getDimensions(sudoku)
+    # since each grid is 3x3 dividing the rows and columns by 3 gives us the grid num
     rows /= 3
     cols /= 3
+    # this tells us how far over and down the coords are from 0,0
     over = m.floor(col/cols)
     down = m.floor(row/rows)
+    # multiplying down by 3 moves us to the correct row and adding over gives us the correct col
     final = down * 3 + over
     return final
 
@@ -62,7 +73,9 @@ def legalPlacement(col, row, num, sudoku=puzzle):
     grids = makeGrid(sudoku)
     coord = findCoord(col, row)
     grid = grids[str(coord)]
-    return not numPresent(fullRow, num) and not numPresent(fullCol, num) and not numPresent(grid, num) and sudoku[row][col] == None
+    return not numPresent(fullRow, num) and\
+        not numPresent(fullCol, num) and not numPresent(
+            grid, num) and sudoku[row][col] == None
 
 
 def generateEmptyPuzzle(colCount=9, rowCount=9):
@@ -76,35 +89,47 @@ def generateEmptyPuzzle(colCount=9, rowCount=9):
 
 
 def randomPlacer(depth):
+    # this is just to keep track of fails not actually important
     failCount = 0
+    # we need this to know whether to break or not
     failed = False
     sudoku = None
+    # this loop is here in place of recursion because the recursion would be too deep
     while True:
+        # need to make sure that it is false before we start
         failed = False
+        # the set makes sure that we don't repeat any numbers
         uniquePairArr = set()
+        # creates the puzzle that we will be populating
         sudoku = generateEmptyPuzzle()
         row, col = getDimensions(sudoku)
         count = 0
+        # i is the the number that we are trying to place in the sudoku
         for i in range(1, depth+1):
-            # print(i, "*")
+            # keep trying to place i until it has been placed 9 times
             while count < 9:
-                # print(count, i)w
+                # generate a random row and column
                 rowToPlace = m.floor(random.random() * row)
                 colToPlace = m.floor(random.random() * col)
+                # add the row and column to the set
                 uniquePairArr.add(makeUniquePair(rowToPlace, colToPlace))
+                # we need to check if it is legal to place the number here
                 if legalPlacement(colToPlace, rowToPlace, i, sudoku):
-                    # print("hi")
                     sudoku[rowToPlace][colToPlace] = i
                     count += 1
                 elif isIllegalBoard(uniquePairArr):
                     failCount += 1
                     print(f"FAIL #{failCount}")
+                    # since it failed we need to mark it as failed so it exits properly
                     failed = True
                     break
+            # resets old values
             uniquePairArr.clear()
             count = 0
+            # if it failed we need to completely reset the puzzle
             if failed:
                 break
+        # if it is here and hasn't failed that means it was completed
         if not failed:
             break
     return sudoku
@@ -115,7 +140,6 @@ def makeUniquePair(a, b):
 
 
 def isIllegalBoard(arr):
-    # print("stupid", len(arr), len(arr) == 81)
     return len(arr) == 81
 
 
