@@ -161,4 +161,40 @@ def getNumberCount(sudoku):
     return countDict
 
 
-print(makeGrid(randomPlacer(9)))
+def solvePuzzle(sudoku):
+    failCount = 0
+    failed = False
+    sudokuCopy = None
+    while True:
+        failed = False
+        sudokuCopy = [arr.copy() for arr in sudoku]
+        numberCount = getNumberCount(sudokuCopy)
+        uniquePairArr = set()
+        row, col = getDimensions(sudokuCopy)
+        count = 0
+        for i in range(1, 10):
+            while count < numberCount[i]:
+                rowToPlace = m.floor(random.random() * row)
+                colToPlace = m.floor(random.random() * col)
+                uniquePairArr.add(makeUniquePair(rowToPlace, colToPlace))
+                if legalPlacement(colToPlace, rowToPlace, i, sudokuCopy):
+                    sudokuCopy[rowToPlace][colToPlace] = i
+                    count += 1
+                elif isIllegalBoard(uniquePairArr):
+                    failCount += 1
+                    print(f"FAIL #{failCount}")
+                    failed = True
+                    break
+            uniquePairArr.clear()
+            count = 0
+            if failed:
+                break
+        if not failed:
+            break
+    return sudokuCopy
+
+
+# generatedPuzzle = randomPlacer(9)
+# print(makeGrid(generatedPuzzle))
+# print(puzzlefy(generatedPuzzle))
+print(solvePuzzle(puzzle))
