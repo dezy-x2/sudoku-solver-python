@@ -88,7 +88,7 @@ def generateEmptyPuzzle(colCount=9, rowCount=9):
     return puzzle
 
 
-def randomPlacer(depth):
+def randomPlacerOneNumAtATime(depth):
     # this is just to keep track of fails not actually important
     failCount = 0
     # we need this to know whether to break or not
@@ -130,6 +130,42 @@ def randomPlacer(depth):
             if failed:
                 break
         # if it is here and hasn't failed that means it was completed
+        if not failed:
+            break
+    return sudoku
+
+
+def randomPlacerOneThroughNine(depth=9):
+    failCount = 0
+    failed = False
+    sudoku = None
+    while True:
+        failed = False
+        uniquePairArr = set()
+        sudoku = generateEmptyPuzzle()
+        row, col = getDimensions(sudoku)
+        for _ in range(0, depth):
+            for i in range(1, depth+1):
+                placed = False
+                while not placed:
+                    placed = False
+                    rowToPlace = m.floor(random.random() * row)
+                    colToPlace = m.floor(random.random() * col)
+                    uniquePairArr.add(makeUniquePair(rowToPlace, colToPlace))
+                    if legalPlacement(colToPlace, rowToPlace, i, sudoku):
+                        sudoku[rowToPlace][colToPlace] = i
+                        placed = True
+                    elif isIllegalBoard(uniquePairArr):
+                        failCount += 1
+                        print(f"FAIL #{failCount}")
+                        failed = True
+                        break
+                if failed:
+                    break
+            if failed:
+                print("=================================")
+                uniquePairArr.clear()
+                break
         if not failed:
             break
     return sudoku
@@ -194,7 +230,4 @@ def solvePuzzle(sudoku):
     return sudokuCopy
 
 
-# generatedPuzzle = randomPlacer(9)
-# print(makeGrid(generatedPuzzle))
-# print(puzzlefy(generatedPuzzle))
-print(solvePuzzle(puzzle))
+print(randomPlacerOneThroughNine())
